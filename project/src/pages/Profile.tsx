@@ -4,9 +4,9 @@ import { Calendar, Clock, MapPin, Car } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase.ts'
 import toast from 'react-hot-toast'
-import type { Database } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase.ts'
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
   slots: {

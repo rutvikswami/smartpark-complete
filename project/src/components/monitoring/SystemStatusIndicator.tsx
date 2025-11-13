@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Activity, AlertCircle, CheckCircle, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
-import type { Database } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase.ts'
+import type { Database } from '@/lib/supabase.ts'
 
 type SystemStatus = Database['public']['Tables']['system_status']['Row']
 

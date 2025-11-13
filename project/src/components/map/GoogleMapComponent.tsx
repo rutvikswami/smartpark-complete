@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MapPin, Car, ExternalLink, Navigation } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { Database } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase.ts'
 
 type ParkingArea = Database['public']['Tables']['parking_areas']['Row']
 type Slot = Database['public']['Tables']['slots']['Row']

@@ -9,10 +9,10 @@ import { PredictionChart } from '@/components/charts/PredictionChart'
 import { SlotGrid } from '@/components/slots/SlotGrid'
 import { ReserveSlotDialog } from '@/components/reservations/ReserveSlotDialog'
 import { SystemStatusIndicator } from '@/components/monitoring/SystemStatusIndicator'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase.ts'
 import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
-import type { Database } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase.ts'
 
 type ParkingArea = Database['public']['Tables']['parking_areas']['Row']
 type Slot = Database['public']['Tables']['slots']['Row']

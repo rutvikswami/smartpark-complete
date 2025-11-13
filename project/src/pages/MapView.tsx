@@ -3,9 +3,9 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { GoogleMapComponent } from '@/components/map/GoogleMapComponent'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase.ts'
 import toast from 'react-hot-toast'
-import type { Database } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase.ts'
 
 type ParkingArea = Database['public']['Tables']['parking_areas']['Row']
 type Slot = Database['public']['Tables']['slots']['Row']
