@@ -10,15 +10,27 @@ import signal
 import sys
 from supabase import create_client, Client
 import datetime
+import os
+from dotenv import load_dotenv
 
-# Supabase config
-url = "https://pqkogcflfsqtmchnbvds.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxa29nY2ZsZnNxdG1jaG5idmRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxODcxMzIsImV4cCI6MjA3Mzc2MzEzMn0.ZLkqzRcH8gc4OMtMgIjBrU_TvzVuvMtgzFSb3xpkIZo"
+# Load environment variables
+load_dotenv()
+
+# Supabase config from environment
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+    raise Exception("Missing SUPABASE_URL or SUPABASE_KEY environment variables")
+
 supabase: Client = create_client(url, key)
 
-# Auth
-USER_EMAIL = "akbc22ainds@cmrit.ac.in"
-USER_PASSWORD = "12345678"
+# Auth from environment
+USER_EMAIL = os.getenv("USER_EMAIL")
+USER_PASSWORD = os.getenv("USER_PASSWORD")
+
+if not USER_EMAIL or not USER_PASSWORD:
+    raise Exception("Missing USER_EMAIL or USER_PASSWORD environment variables")
 auth_response = supabase.auth.sign_in_with_password({
     "email": USER_EMAIL,
     "password": USER_PASSWORD
@@ -27,8 +39,9 @@ if not auth_response.user:
     raise Exception("Failed to authenticate")
 supabase.auth.session = auth_response.session
 
-# Use lightweight model (6MB instead of 170MB)
-model = YOLO('yolov8n.pt')
+# Use model from environment variables
+YOLO_MODEL = os.getenv("YOLO_MODEL", "yolov8n.pt")  # Default fallback
+model = YOLO(YOLO_MODEL)
 
 def box_iou(boxA, boxB):
     """Calculate IoU between two bounding boxes"""
@@ -99,7 +112,7 @@ def cleanup_and_exit(signum=None, frame=None, system_id="parking_monitor_tech_pa
     print("✅ Monitor stopped and status set to offline")
     sys.exit(0)
 
-def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="parking_monitor_tech_park_whitefield", location="Tech Park Whitefield"):  # Back to 3 seconds for proper timing
+def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="parking_monitor_tech_park_whitefield", location="Tech Park Whitefield", area_uuid=None):  # Back to 3 seconds for proper timing
     """
     Optimized monitoring with:
     - Frame skipping (2x faster)
@@ -148,8 +161,11 @@ def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="pa
 
         frame_count += 1
         
-        # OPTIMIZATION: Process every 2nd frame (2x faster)
-        if frame_count % 2 != 0:
+        # Get frame skip configuration from environment
+        FRAME_SKIP_COUNT = int(os.getenv("FRAME_SKIP_COUNT", "3"))
+        
+        # OPTIMIZATION: Process every nth frame for performance
+        if frame_count % FRAME_SKIP_COUNT != 0:
             cv2.imshow('Parking Monitor', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -159,10 +175,14 @@ def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="pa
         results = model(frame, verbose=False)[0]
         detected_boxes = []
 
+        # Get detection configuration from environment
+        DETECTION_CONFIDENCE = float(os.getenv("DETECTION_CONFIDENCE_THRESHOLD", "0.3"))
+        VEHICLE_CLASSES = list(map(int, os.getenv("VEHICLE_CLASSES", "2,5,7").split(",")))
+        
         # Extract vehicles
         for det in results.boxes.data.cpu().numpy():
             x1, y1, x2, y2, score, class_id = det
-            if int(class_id) in [2, 5, 7] and score > 0.3:  # Lowered threshold to match setup
+            if int(class_id) in VEHICLE_CLASSES and score > DETECTION_CONFIDENCE:
                 detected_boxes.append([float(x1), float(y1), float(x2), float(y2)])
 
         # Check slots and collect updates  
@@ -174,7 +194,10 @@ def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="pa
             # Only track changes, don't update last_status yet
             if last_status[i] != current_status:
                 # Convert status to match database schema
-                area_uuid = "550e8400-e29b-41d4-a716-446655440000"  # Same UUID as setup
+                # Use the correct area_uuid for the selected location
+                if not area_uuid:
+                    print("❌ Error: No area UUID provided")
+                    continue
                 db_status = "free" if current_status == "available" else "occupied"
                 updates_needed.append({
                     "slot_index": i,
@@ -202,9 +225,12 @@ def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="pa
             except Exception as e:
                 print(f"❌ Database error: {e}")
 
-        # Update status to online every 30 seconds
+        # Get heartbeat interval from environment
+        HEARTBEAT_INTERVAL = int(os.getenv("HEARTBEAT_INTERVAL", "30"))
+        
+        # Update status to online at configured interval
         current_time = time.time()
-        if current_time - last_heartbeat_time >= 30:
+        if current_time - last_heartbeat_time >= HEARTBEAT_INTERVAL:
             set_status_online(system_id, location)
             last_heartbeat_time = current_time
 
@@ -228,16 +254,70 @@ def monitor(video_path=None, iou_threshold=0.3, update_interval=3, system_id="pa
     cap.release()
     cleanup_and_exit(system_id=system_id)
 
+def select_parking_location():
+    """Select parking location and authenticate with location password"""
+    try:
+        # Get parking areas from database
+        areas_response = supabase.table('parking_areas').select('*').execute()
+        if not areas_response.data:
+            print("❌ No parking areas found in database!")
+            return None, None, None
+        
+        # Show available areas
+        print("\n🏢 Available parking locations:")
+        for i, area in enumerate(areas_response.data):
+            print(f"{i+1}. {area['name']} ({area['total_slots']} slots)")
+        
+        # Let user choose location
+        while True:
+            try:
+                choice = input(f"\nSelect parking location (1-{len(areas_response.data)}): ")
+                area_index = int(choice) - 1
+                if 0 <= area_index < len(areas_response.data):
+                    selected_area = areas_response.data[area_index]
+                    break
+                else:
+                    print("❌ Invalid choice. Please try again.")
+            except ValueError:
+                print("❌ Please enter a valid number.")
+        
+        # Authenticate with location password
+        location_password = input(f"\nEnter password for {selected_area['name']}: ")
+        if location_password != selected_area['password']:
+            print("❌ Incorrect password! Access denied.")
+            return None, None, None
+        
+        print(f"✅ Access granted to {selected_area['name']}")
+        
+        # Generate system ID and get location info
+        system_id = f"parking_monitor_{selected_area['name'].lower().replace(' ', '_')}"
+        location_name = selected_area['name']
+        area_uuid = selected_area['id']
+        
+        return system_id, location_name, area_uuid
+        
+    except Exception as e:
+        print(f"❌ Location selection error: {e}")
+        return None, None, None
+
 if __name__ == "__main__":
-    # Configuration for different locations
-    # Change these values to monitor different parking areas
-    SYSTEM_ID = "parking_monitor_tech_park_whitefield"  # For other areas: parking_monitor_cmr_institute_of_technology, etc.
-    LOCATION = "Tech Park Whitefield"  # For other areas: "CMR Institute of Technology", etc.
+    print("🚀 SmartPark Monitoring System")
+    print("=" * 40)
+    
+    # Select and authenticate with parking location
+    system_id, location_name, area_uuid = select_parking_location()
+    
+    if not system_id:
+        print("❌ Failed to authenticate. Exiting...")
+        sys.exit(1)
+    
+    print(f"\n🎯 Starting monitoring for: {location_name}")
+    print(f"📡 System ID: {system_id}")
     
     try:
-        monitor(video_path="parking_lot.mp4", system_id=SYSTEM_ID, location=LOCATION)
+        monitor(video_path="parking_lot.mp4", system_id=system_id, location=location_name, area_uuid=area_uuid)
     except KeyboardInterrupt:
-        cleanup_and_exit(system_id=SYSTEM_ID)
+        cleanup_and_exit(system_id=system_id)
     except Exception as e:
         print(f"❌ Monitor error: {e}")
-        cleanup_and_exit(system_id=SYSTEM_ID)
+        cleanup_and_exit(system_id=system_id)

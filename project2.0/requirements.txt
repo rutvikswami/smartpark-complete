@@ -1,0 +1,30 @@
+# Lightweight Parking Monitoring System Requirements
+
+# Core Computer Vision and ML
+ultralytics==8.0.196        # YOLOv8 (optimized for nano model)
+opencv-python==4.8.1.78     # Computer vision operations
+numpy==1.24.3                # Numerical operations
+torch==2.0.1                 # PyTorch for YOLO (CPU optimized)
+torchvision==0.15.2          # Vision utilities
+
+# Database and API
+supabase==1.2.0              # Database client
+postgrest==0.10.8            # PostgREST client
+httpx==0.24.1                # Async HTTP client
+
+# System and Performance
+psutil==5.9.5                # System resource monitoring
+asyncio-mqtt==0.11.1         # Optional: MQTT for edge deployment
+
+# Logging and Configuration
+python-dotenv==1.0.0         # Environment variable management
+
+# Optional Edge Computing
+# Uncomment for Raspberry Pi deployment:
+# picamera==1.13               # Pi camera support
+# RPi.GPIO==0.7.1              # GPIO control
+
+# Development and Testing (optional)
+# pytest==7.4.0               # Testing framework
+# black==23.7.0                # Code formatting
+# flake8==6.0.0                # Code linting

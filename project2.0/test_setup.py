@@ -8,15 +8,27 @@ import json
 from supabase import create_client, Client
 from datetime import datetime
 import uuid
+import os
+from dotenv import load_dotenv
 
-# Supabase config
-url = "https://pqkogcflfsqtmchnbvds.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxa29nY2ZsZnNxdG1jaG5idmRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxODcxMzIsImV4cCI6MjA3Mzc2MzEzMn0.ZLkqzRcH8gc4OMtMgIjBrU_TvzVuvMtgzFSb3xpkIZo"
+# Load environment variables
+load_dotenv()
+
+# Supabase config from environment
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+    raise Exception("Missing SUPABASE_URL or SUPABASE_KEY environment variables")
+
 supabase: Client = create_client(url, key)
 
-# Auth
-USER_EMAIL = "akbc22ainds@cmrit.ac.in"
-USER_PASSWORD = "12345678"
+# Auth from environment
+USER_EMAIL = os.getenv("USER_EMAIL")
+USER_PASSWORD = os.getenv("USER_PASSWORD")
+
+if not USER_EMAIL or not USER_PASSWORD:
+    raise Exception("Missing USER_EMAIL or USER_PASSWORD environment variables")
 auth_response = supabase.auth.sign_in_with_password({
     "email": USER_EMAIL,
     "password": USER_PASSWORD
@@ -24,8 +36,9 @@ auth_response = supabase.auth.sign_in_with_password({
 if not auth_response.user:
     raise Exception("Failed to authenticate")
 
-# Load lightweight YOLO model
-model = YOLO('yolov8n.pt')
+# Load YOLO model from environment variables
+YOLO_MODEL = os.getenv("YOLO_MODEL", "yolov8n.pt")  # Default fallback
+model = YOLO(YOLO_MODEL)
 
 def test_detection_accuracy(image_path='reference.png', location_name="Test Location"):
     """Test parking slot detection and create parking area in database"""
@@ -70,10 +83,14 @@ def test_detection_accuracy(image_path='reference.png', location_name="Test Loca
             x1, y1, x2, y2, score, class_id = det
             class_id = int(class_id)
             
+            # Get detection configuration from environment
+            DETECTION_CONFIDENCE = float(os.getenv("DETECTION_CONFIDENCE_THRESHOLD", "0.3"))
+            VEHICLE_CLASSES = list(map(int, os.getenv("VEHICLE_CLASSES", "2,5,7").split(",")))
+            
             # Check if it's a vehicle with good confidence
-            if class_id in [2, 5, 7]:  # car, bus, truck
+            if class_id in VEHICLE_CLASSES:  # configured vehicle classes
                 detected_vehicles += 1
-                if score > 0.3:  # Lowered threshold for maximum detection
+                if score > DETECTION_CONFIDENCE:  # Use configured threshold
                     slot = {
                         'x1': int(x1),
                         'y1': int(y1),

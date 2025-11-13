@@ -1,27 +1,130 @@
+# ===================================
+# SMARTPARK UNIFIED .GITIGNORE
+# Protects sensitive data and excludes unnecessary files
+# ===================================
+
+# ==========================================
+# ENVIRONMENT & CONFIGURATION FILES
+# ==========================================
+# Critical: Never commit these files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+.env.backup
+*.env
+
+# Configuration backups
+config.json
+config.local.json
+settings.json
+secrets.json
+credentials.json
+
+# ==========================================
+# API KEYS & AUTHENTICATION
+# ==========================================
+# Google Cloud credentials
+google-credentials.json
+gcp-key.json
+service-account.json
+firebase-adminsdk*.json
+
+# API key files
+api-keys.txt
+*.key
+*.pem
+*.p12
+*.pfx
+.secrets
+secrets/
+
+# Authentication tokens
+.auth
+auth.json
+token.json
+refresh_token.json
+
+# ==========================================
+# DATABASE & SUPABASE
+# ==========================================
+# Database exports/backups
+*.sql
+*.dump
+*.backup
+database-backup/
+db_backup/
+supabase_backup/
+
+# Database connection files
+database.json
+db.config
+connection.json
+
+# ==========================================
+# FRONTEND (REACT/NODE.JS)
+# ==========================================
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
-# Production builds
-/project/dist/
-/project/build/
-/project/.next/
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output/
 
-# Python
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Vite cache
+.vite/
+vite.config.js.timestamp-*
+
+# Cache directories
+.npm/
+.yarn/
+.pnpm/
+.cache/
+.parcel-cache/
+
+# ESLint cache
+.eslintcache
+
+# ==========================================
+# BACKEND (PYTHON)
+# ==========================================
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+.virtualenv/
+poetry.lock
+Pipfile.lock
+
+# Python distributions
 build/
 develop-eggs/
 dist/
@@ -38,21 +141,91 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-venv/
-env/
-ENV/
-project2.0/venv/
-project2.0/env/
+# PyInstaller
+*.manifest
+*.spec
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+pytest.ini
+.nose
 
-# OS files
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# ==========================================
+# AI/ML MODELS & DATA
+# ==========================================
+# YOLO models (download on demand)
+*.pt
+*.onnx
+*.weights
+models/
+weights/
+checkpoints/
+
+# Training data
+data/
+datasets/
+training_data/
+test_data/
+
+# Video files (large)
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+*.webm
+*DE.md
+*T.md
+*S.md
+*.txt
+
+# Image datasets
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+reference_images/
+parking_videos/
+
+# Exception: Keep reference.png for setup
+!smartpark/project2.0/reference.png
+
+# ==========================================
+# LOGS & DEBUGGING
+# ==========================================
+# Log files
+logs/
+*.log
+log.txt
+debug.log
+error.log
+access.log
+npm-debug.log*
+yarn-debug.log*
+
+# Runtime logs
+runtime.log
+monitor.log
+system.log
+
+# Crash dumps
+*.dmp
+core.*
+
+# ==========================================
+# OPERATING SYSTEM FILES
+# ==========================================
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -61,48 +234,219 @@ project2.0/env/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-*.log
-logs/
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
 
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==========================================
+# IDE & EDITOR FILES
+# ==========================================
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.vimrc.local
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# Atom
+.atom/
+
+# ==========================================
+# TEMPORARY & CACHE FILES
+# ==========================================
 # Temporary files
 tmp/
+temp/
 *.tmp
 *.temp
-
-# Model files (large)
-*.pt
-*.pth
-*.weights
-*.h5
-
-# Video files (large)
-*.mp4
-*.avi
-*.mov
-*.mkv
-
-# Temporary rovodev files
-tmp_rovodev_*
-
-# Backup files
 *.bak
 *.backup
+*.swp
+*.swo
 
-# Package files
+# Cache directories
+.cache/
+cache/
+.temp/
+.tmp/
+
+# Package manager cache
+.npm/
+.yarn/
+.pnpm-store/
+
+# ==========================================
+# TESTING & DEVELOPMENT
+# ==========================================
+# Test outputs
+test-results/
+test_output/
+*.test.json
+coverage/
+.coverage
+
+# Development databases
+dev.db
+test.db
+*.sqlite
+*.sqlite3
+
+# Mock/fixture data
+fixtures/
+mocks/
+test_fixtures/
+
+# Generated test files
+test_slots.json
+tmp_*.json
+
+# ==========================================
+# DEPLOYMENT & CI/CD
+# ==========================================
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Kubernetes
+*.yaml.bak
+k8s/secrets/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# CI/CD secrets
+.github/secrets/
+.gitlab-ci-secrets/
+deploy-keys/
+
+# ==========================================
+# DOCUMENTATION BACKUP
+# ==========================================
+# Generated docs
+docs/_build/
+site/
+_site/
+
+# Backup documentation
+*.md.bak
+*.txt.bak
+README.backup
+
+# ==========================================
+# PROJECT SPECIFIC
+# ==========================================
+# SmartPark monitoring outputs
+slots.json.backup
+system_status.json
+parking_data/
+monitoring_logs/
+
+# Generated configuration
+generated_config/
+auto_config/
+
+# Performance analysis
+profile_results/
+benchmark_data/
+
+# User uploads
+uploads/
+user_content/
+
+# Analytics data
+analytics/
+metrics/
+stats/
+
+# ==========================================
+# SECURITY SCAN RESULTS
+# ==========================================
+# Security reports
+security_reports/
+vulnerability_scan/
+*.security
+audit.json
+
+# ==========================================
+# KEEP IMPORTANT FILES
+# ==========================================
+# Explicitly keep these files
+!.env.example
+!README.md
+!LICENSE
+!requirements.txt
+!package.json
+!smartpark/project2.0/reference.png
+!smartpark/project/database.txt
+
+# ==========================================
+# FINAL SAFETY NET
+# ==========================================
+# Anything with "secret", "private", "key" in the name
+*secret*
+*private*
+*confidential*
+*key*
+*password*
+*token*
+*credential*
+
+# Backup files with potentially sensitive data
+*.backup
+*.bak
+*.old
+*_backup
+*_bak
+*_old
+
+# Archive files that might contain sensitive data
 *.zip
 *.tar.gz
 *.rar
+*.7z
 
-# Exclude documentation files (keep only code folders)
-*.tex
-*.txt
-*.pdf
-SAMPLE*
-acli.exe
-prototype*
-*prompt*
-
-# Allow README.md but exclude other .md files
-*.md
-!README.md
+# Exception: Allow specific archives if needed
+# !specific_safe_archive.zip

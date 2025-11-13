@@ -1,25 +1,21 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# React/Vite Frontend Specific
+# Main .gitignore is at smartpark/.gitignore
 
-node_modules
-dist
-dist-ssr
+# Build outputs
+dist/
+build/
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Dependencies (if not covered by root)
+node_modules/
+
+# Vite specific
+.vite/
+
+# Environment files (redundant with root but kept for clarity)
 .env
+.env.local
+.env.production.local
+
+# Editor files (if needed locally)
+.vscode/settings.json

@@ -1,0 +1,31 @@
+# Python Backend Specific
+# Main .gitignore is at smartpark/.gitignore
+
+# Generated slot configurations
+slots.json
+test_slots.json
+
+# Downloaded YOLO models (will download automatically)
+yolov8*.pt
+*.weights
+
+# Python cache (redundant with root but kept for clarity)
+__pycache__/
+*.pyc
+
+# Virtual environment (if created locally)
+venv/
+env/
+
+# Test videos and images (keep reference.png)
+*.mp4
+*.avi
+parking_lot.mp4
+!reference.png
+
+# Monitor logs
+monitor.log
+system.log
+
+# Generated config files
+config.json

@@ -8,15 +8,27 @@ import json
 import time
 from supabase import create_client, Client
 import datetime
+import os
+from dotenv import load_dotenv
 
-# Supabase config
-url = "https://pqkogcflfsqtmchnbvds.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxa29nY2ZsZnNxdG1jaG5idmRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxODcxMzIsImV4cCI6MjA3Mzc2MzEzMn0.ZLkqzRcH8gc4OMtMgIjBrU_TvzVuvMtgzFSb3xpkIZo"
+# Load environment variables
+load_dotenv()
+
+# Supabase config from environment
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
+if not url or not key:
+    raise Exception("Missing SUPABASE_URL or SUPABASE_KEY environment variables")
+
 supabase: Client = create_client(url, key)
 
-# Auth
-USER_EMAIL = "akbc22ainds@cmrit.ac.in"
-USER_PASSWORD = "12345678"
+# Auth from environment
+USER_EMAIL = os.getenv("USER_EMAIL")
+USER_PASSWORD = os.getenv("USER_PASSWORD")
+
+if not USER_EMAIL or not USER_PASSWORD:
+    raise Exception("Missing USER_EMAIL or USER_PASSWORD environment variables")
 auth_response = supabase.auth.sign_in_with_password({
     "email": USER_EMAIL,
     "password": USER_PASSWORD
@@ -83,9 +95,15 @@ def test_monitoring_accuracy(video_path="parking_lot.mp4", max_frames=50, locati
                 except ValueError:
                     print("❌ Please enter a valid number.")
         
+        # Authenticate with location password
+        location_password = input(f"\nEnter password for {selected_area['name']}: ")
+        if location_password != selected_area['password']:
+            print("❌ Incorrect password! Access denied.")
+            return
+        
+        print(f"✅ Access granted to {selected_area['name']}")
         area_uuid = selected_area['id']
         location_name = selected_area['name']
-        print(f"✅ Selected: {location_name} (UUID: {area_uuid})")
                 
     except Exception as e:
         print(f"❌ Database error: {e}")
